@@ -187,8 +187,14 @@ Edges: ${JSON.stringify(getEdges())}
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contents: [{ parts: parts }] })
       });
-      if (!res.ok) throw new Error("Gemini API Error");
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(`Gemini Error: ${errorData.error?.message || res.statusText}`);
+      }
       const data = await res.json();
+      if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+        throw new Error(`Gemini blocked the request or returned empty. Reason: ${data.candidates?.[0]?.finishReason || 'Unknown'}`);
+      }
       return data.candidates[0].content.parts[0].text;
     };
 
@@ -257,17 +263,19 @@ Edges: ${JSON.stringify(getEdges())}
     else if (selectedModel.includes('gpt')) executionPlan.push(() => tryOpenAI(selectedModel), () => tryGemini('gemini-1.5-flash'), () => tryAnthropic('claude-3-5-sonnet'));
     else if (selectedModel.includes('claude')) executionPlan.push(() => tryAnthropic(selectedModel), () => tryOpenAI('gpt-4o-mini'), () => tryGemini('gemini-1.5-flash'));
 
+    const errors = [];
     for (const fn of executionPlan) {
       try {
         resultText = await fn();
         break; // Success!
       } catch (err) {
         console.warn('Fallback triggered due to:', err.message);
+        errors.push(err.message);
       }
     }
 
     if (!resultText) {
-      setErrorMsg("All available AI models failed or missing API keys.");
+      setErrorMsg(`Gagal: ${errors[0]}`);
       setLoading(false);
       return;
     }
