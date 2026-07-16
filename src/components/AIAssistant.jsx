@@ -187,10 +187,12 @@ AVAILABLE NODE TYPES:
 11. "license" - Account/Broker restriction. data: { type: "Account Protection", accountName: "" }
 12. "alert" - Notifications. data: { type: "Push Notification" }
 
-RULES FOR EDGES & CONNECTIONS:
+RULES FOR EDGES & CONNECTIONS (CRITICAL FOR VISUAL WORKFLOW):
+- Users want to see a clear, connected workflow on the canvas. DO NOT leave nodes disconnected.
 - Indicators must connect their "out" handle to a logic node's "in1" or "in2" handle.
 - Logic nodes must connect their "out" handle to an action node's "in" handle.
-- Global Modifiers (risk, timeframe, grid, newsFilter, drawdown, tradeManagement, partialClose, license, alert) act as overarching EA rules. They DO NOT need to be wired into logic gates. Place them anywhere on the canvas (unconnected or loosely grouped).
+- Global Modifiers (risk, timeframe, grid, newsFilter, drawdown, tradeManagement, partialClose, license, alert) MUST also be connected sequentially to form a logical visual chain. For example, connect Timeframe -> NewsFilter -> Logic -> Action -> Grid -> Drawdown -> Close All. 
+- Use the standard "out" to "in" handles to daisy-chain everything together so the user sees a complete, connected pipeline from start to finish.
 
 The JSON MUST have this exact structure:
 {
