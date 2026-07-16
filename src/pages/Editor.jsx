@@ -266,7 +266,7 @@ export default function Editor() {
         </div>
       </div>
       
-      <div className="app-body">
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         <ReactFlowProvider>
           {/* Editor Sidebar */}
           <NodePalette projectType={currentProject?.type || 'EA'} />

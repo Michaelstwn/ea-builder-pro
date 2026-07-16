@@ -176,14 +176,21 @@ export default function AIAssistant() {
 AVAILABLE NODE TYPES:
 1. "indicator" - e.g. Moving Average, RSI, MACD. data: { name: "Moving Average", isCustom: false, params: { period: 14 } }
 2. "logic" - compares inputs. data: { condition: "Crosses Above" | "Crosses Below" | "Greater Than" | "Less Than" }
-3. "action" - executes trades. data: { action: "Buy Market" | "Sell Market", params: { lots: 0.1 } }
-4. "risk" - sets SL/TP. data: { type: "Stop Loss / Take Profit", sl: 50, tp: 100 }
-5. "timeframe" - filters time. data: { startHour: 8, endHour: 17 }
+3. "action" - executes trades (e.g. Buy/Sell Market, Pending Orders, Close All). data: { action: "Buy Limit" | "Sell Market", params: { lots: 0.1 } }
+4. "risk" - standard SL/TP or Daily Profit Target. data: { type: "Stop Loss / Take Profit" | "Daily Profit Target", sl: 50, tp: 100 }
+5. "timeframe" - filters trading hours. data: { startHour: 8, endHour: 17 }
+6. "grid" - Grid & Averaging/Martingale. data: { mode: "Grid" | "Martingale", step: 20, multiplier: 1.5, maxTrades: 10 }
+7. "newsFilter" - Smart News Filter to pause trading. data: { mode: "Smart News Filter", stopBefore: 60, startAfter: 60 }
+8. "drawdown" - Cutloss or Drawdown protector. data: { mode: "Cutloss" | "Max Drawdown", type: "Percent" | "Money", value: 10 }
+9. "tradeManagement" - Trailing Stop, Break Even. data: { mode: "Trailing Stop" | "Break Even", start: 20, step: 5 }
+10. "partialClose" - Take partial profits. data: { mode: "Partial Close", targetPips: 20, closePercent: 50 }
+11. "license" - Account/Broker restriction. data: { type: "Account Protection", accountName: "" }
+12. "alert" - Notifications. data: { type: "Push Notification" }
 
-RULES FOR EDGES:
+RULES FOR EDGES & CONNECTIONS:
 - Indicators must connect their "out" handle to a logic node's "in1" or "in2" handle.
 - Logic nodes must connect their "out" handle to an action node's "in" handle.
-- Risk/Timeframe nodes do not need edges, their presence applies globally.
+- Global Modifiers (risk, timeframe, grid, newsFilter, drawdown, tradeManagement, partialClose, license, alert) act as overarching EA rules. They DO NOT need to be wired into logic gates. Place them anywhere on the canvas (unconnected or loosely grouped).
 
 The JSON MUST have this exact structure:
 {
