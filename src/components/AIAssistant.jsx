@@ -377,19 +377,20 @@ Edges: ${JSON.stringify(getEdges())}
           </div>
         </div>
 
-        <div style={{ position: 'relative', marginBottom: '12px' }}>
+        <div style={{ marginBottom: '12px', display: 'flex', flexDirection: 'column', gap: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border)', borderRadius: '16px', padding: '12px' }}>
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="e.g. Build an EA that buys when MA 50 crosses over MA 200..."
-            style={{ width: '100%', boxSizing: 'border-box', minHeight: '120px', padding: '12px', paddingBottom: '40px', borderRadius: '16px', border: '1px solid var(--border)', outline: 'none', background: 'rgba(0,0,0,0.2)', color: 'white', resize: 'none', fontFamily: 'inherit', fontSize: '13px' }}
+            style={{ width: '100%', boxSizing: 'border-box', minHeight: '90px', border: 'none', outline: 'none', background: 'transparent', color: 'white', resize: 'none', fontFamily: 'inherit', fontSize: '13px', padding: 0 }}
           />
-          <div style={{ position: 'absolute', bottom: '8px', left: '12px', display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <label style={{ cursor: 'pointer', color: imageFile ? 'var(--accent)' : 'var(--text-muted)', display: 'flex', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <label style={{ cursor: 'pointer', color: imageFile ? 'var(--accent)' : 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageUpload} />
               <ImageIcon size={16} title="Attach Image for AI to analyze" />
+              <span style={{ fontSize: '11px' }}>{imageFile ? 'Image Attached' : 'Attach Image'}</span>
             </label>
-            {imageFile && <span style={{ fontSize: '10px', color: 'var(--accent)', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{imageFile.name}</span>}
+            {imageFile && <span style={{ fontSize: '10px', color: 'var(--accent)', maxWidth: '150px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>({imageFile.name})</span>}
           </div>
         </div>
 
