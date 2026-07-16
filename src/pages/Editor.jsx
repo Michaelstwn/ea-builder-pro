@@ -289,7 +289,7 @@ export default function Editor() {
             >
               <Controls />
               <MiniMap 
-                style={{ bottom: 40, right: 20, backgroundColor: '#1e1e24' }}
+                style={{ bottom: 40, right: 20, backgroundColor: '#ffffff' }}
                 nodeStrokeColor={(n) => {
                   if (n.type === 'indicator') return '#8b5cf6'; // Purple
                   if (n.type === 'action') return '#0ea5e9'; // Teal

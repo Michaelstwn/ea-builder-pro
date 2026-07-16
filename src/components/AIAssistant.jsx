@@ -374,7 +374,7 @@ Edges: ${JSON.stringify(getEdges())}
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="e.g. Build an EA that buys when MA 50 crosses over MA 200..."
-            style={{ width: '100%', minHeight: '90px', padding: '12px', paddingBottom: '32px', borderRadius: '6px', border: '1px solid var(--border)', background: 'rgba(0,0,0,0.2)', color: 'white', resize: 'none', fontFamily: 'inherit', fontSize: '13px' }}
+            style={{ width: '100%', minHeight: '90px', padding: '12px', paddingBottom: '32px', borderRadius: '16px', border: '1px solid var(--border)', background: 'rgba(0,0,0,0.2)', color: 'white', resize: 'none', fontFamily: 'inherit', fontSize: '13px' }}
           />
           <div style={{ position: 'absolute', bottom: '8px', left: '12px', display: 'flex', gap: '8px', alignItems: 'center' }}>
             <label style={{ cursor: 'pointer', color: imageFile ? 'var(--accent)' : 'var(--text-muted)', display: 'flex', alignItems: 'center' }}>
