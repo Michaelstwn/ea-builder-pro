@@ -343,6 +343,13 @@ Edges: ${JSON.stringify(getEdges())}
 
     try {
       let cleaned = resultText.replace(/```json/g, '').replace(/```/g, '');
+      // Extract just the JSON object to handle chatty models (like Llama)
+      const firstBrace = cleaned.indexOf('{');
+      const lastBrace = cleaned.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace !== -1) {
+        cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+      }
+      
       const graph = JSON.parse(cleaned);
       setNodes(graph.nodes);
       setEdges(graph.edges);
