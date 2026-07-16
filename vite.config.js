@@ -12,7 +12,7 @@ export default defineConfig({
         entry: 'electron/main.js',
       },
       {
-        entry: 'electron/preload.mjs',
+        entry: 'electron/preload.js',
         onstart(options) {
           options.reload()
         },
