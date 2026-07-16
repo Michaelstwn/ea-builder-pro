@@ -288,9 +288,11 @@ export default function Editor() {
               theme="dark"
             >
               <Controls />
-              <MiniMap nodeStrokeColor={(n) => {
-                if (n.type === 'indicator') return '#8b5cf6'; // Purple
-                if (n.type === 'action') return '#0ea5e9'; // Teal
+              <MiniMap 
+                style={{ bottom: 40, right: 20 }}
+                nodeStrokeColor={(n) => {
+                  if (n.type === 'indicator') return '#8b5cf6'; // Purple
+                  if (n.type === 'action') return '#0ea5e9'; // Teal
                 if (n.type === 'risk') return '#ef4444'; // Red
                 return '#333';
               }} nodeColor={(n) => 'rgba(20, 20, 25, 0.8)'} maskColor="rgba(0,0,0,0.8)" />

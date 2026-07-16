@@ -307,7 +307,7 @@ Edges: ${JSON.stringify(getEdges())}
       <button 
         className="btn-primary" 
         onClick={() => setIsOpen(true)}
-        style={{ position: 'absolute', bottom: '30px', left: '20px', zIndex: 9999, borderRadius: '50%', width: '56px', height: '56px', display: 'flex', justifyContent: 'center', alignItems: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}
+        style={{ position: 'absolute', bottom: '210px', right: '20px', zIndex: 9999, borderRadius: '50%', width: '56px', height: '56px', display: 'flex', justifyContent: 'center', alignItems: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}
       >
         <Bot size={24} />
       </button>
@@ -316,7 +316,7 @@ Edges: ${JSON.stringify(getEdges())}
 
   return (
     <div style={{
-      position: 'absolute', bottom: '30px', left: '20px', width: '350px', zIndex: 9999,
+      position: 'absolute', bottom: '210px', right: '20px', width: '350px', zIndex: 9999,
       backgroundColor: 'var(--bg-panel)', backdropFilter: 'blur(10px)',
       border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden',
       display: 'flex', flexDirection: 'column', boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
