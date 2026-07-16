@@ -5,6 +5,7 @@ export default function Settings() {
   const [geminiKey, setGeminiKey] = useState('');
   const [openaiKey, setOpenaiKey] = useState('');
   const [anthropicKey, setAnthropicKey] = useState('');
+  const [groqKey, setGroqKey] = useState('');
   const [saved, setSaved] = useState(false);
   const [updateStatus, setUpdateStatus] = useState('');
 
@@ -25,6 +26,7 @@ export default function Settings() {
       setGeminiKey(loadedKeys.gemini || localStorage.getItem('gemini_api_key') || '');
       setOpenaiKey(loadedKeys.openai || localStorage.getItem('openai_api_key') || '');
       setAnthropicKey(loadedKeys.anthropic || localStorage.getItem('anthropic_api_key') || '');
+      setGroqKey(loadedKeys.groq || localStorage.getItem('groq_api_key') || '');
     };
     loadKeys();
 
@@ -56,6 +58,8 @@ export default function Settings() {
     else localStorage.removeItem('openai_api_key');
     if (anthropicKey) localStorage.setItem('anthropic_api_key', anthropicKey);
     else localStorage.removeItem('anthropic_api_key');
+    if (groqKey) localStorage.setItem('groq_api_key', groqKey);
+    else localStorage.removeItem('groq_api_key');
 
     // Save to file securely
     if (window.ipcRenderer) {
@@ -63,7 +67,8 @@ export default function Settings() {
         await window.ipcRenderer.invoke('save-keys', {
           gemini: geminiKey,
           openai: openaiKey,
-          anthropic: anthropicKey
+          anthropic: anthropicKey,
+          groq: groqKey
         });
       } catch (e) {
         console.warn("Failed to save keys to file", e);
@@ -116,6 +121,17 @@ export default function Settings() {
             value={anthropicKey}
             onChange={(e) => setAnthropicKey(e.target.value)}
             placeholder="sk-ant-..."
+            style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border)', background: 'rgba(0,0,0,0.2)', color: 'white', fontFamily: 'monospace' }}
+          />
+        </div>
+
+        <div style={{ marginBottom: '24px' }}>
+          <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}>Groq API Key (Llama-3, Mixtral - Free & Fast)</label>
+          <input 
+            type="password"
+            value={groqKey}
+            onChange={(e) => setGroqKey(e.target.value)}
+            placeholder="gsk_..."
             style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border)', background: 'rgba(0,0,0,0.2)', color: 'white', fontFamily: 'monospace' }}
           />
         </div>

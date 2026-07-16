@@ -18,9 +18,14 @@ export default function AIAssistant() {
     { id: 'gemini-2.5-flash', name: 'Google Gemini 2.5 Flash', description: 'Versi experimental.' },
     { id: 'gemini-2.5-pro', name: 'Google Gemini 2.5 Pro', description: 'Versi experimental pro.' }
   ]);
+  const [groqModels, setGroqModels] = useState([
+    { id: 'llama-3.1-70b-versatile', name: 'Llama 3.1 70B', description: 'Model open-source cerdas & super cepat.' },
+    { id: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B', description: 'Sangat ringan & instan.' },
+    { id: 'mixtral-8x7b-32768', name: 'Mixtral 8x7B', description: 'Model MoE solid dari Mistral.' }
+  ]);
   const [imageFile, setImageFile] = useState(null);
   const [imageBase64, setImageBase64] = useState('');
-  const [keys, setKeys] = useState({ gemini: null, openai: null, anthropic: null });
+  const [keys, setKeys] = useState({ gemini: null, openai: null, anthropic: null, groq: null });
   const { setNodes, setEdges, getNodes, getEdges } = useReactFlow();
 
   useEffect(() => {
@@ -28,7 +33,8 @@ export default function AIAssistant() {
       let loadedKeys = {
         gemini: localStorage.getItem('gemini_api_key'),
         openai: localStorage.getItem('openai_api_key'),
-        anthropic: localStorage.getItem('anthropic_api_key')
+        anthropic: localStorage.getItem('anthropic_api_key'),
+        groq: localStorage.getItem('groq_api_key')
       };
 
       if (window.ipcRenderer) {
@@ -60,6 +66,26 @@ export default function AIAssistant() {
             }
           })
           .catch(err => console.warn('Failed to fetch live Gemini models:', err));
+      }
+      
+      if (loadedKeys.groq) {
+        fetch(`https://api.groq.com/openai/v1/models`, {
+          headers: { 'Authorization': `Bearer ${loadedKeys.groq}` }
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.data) {
+              const liveGroq = data.data
+                .filter(m => !m.id.includes('whisper')) // exclude audio models
+                .map(m => ({
+                  id: m.id,
+                  name: m.id.replace(/-/g, ' ').toUpperCase(),
+                  description: 'Groq Cloud API Model'
+                }));
+              if (liveGroq.length > 0) setGroqModels(liveGroq);
+            }
+          })
+          .catch(err => console.warn('Failed to fetch live Groq models:', err));
       }
     };
     if (isOpen) loadKeys();
@@ -255,13 +281,48 @@ Edges: ${JSON.stringify(getEdges())}
       return data.content[0].text;
     };
 
+    const tryGroq = async (model = selectedModel) => {
+      if (!currentKeys.groq) throw new Error("Groq API Key missing");
+      const modelId = model.includes('llama') || model.includes('mixtral') || model.includes('gemma') ? model : 'llama-3.1-70b-versatile';
+      
+      let content = [{ type: 'text', text: enrichedPrompt }];
+      if (imageBase64) {
+        // Most Groq models don't support vision yet, but if they selected Llama 3.2 Vision, we pass it.
+        // Otherwise, we just drop the image and warn in console.
+        if (modelId.includes('vision')) {
+          content.push({ type: 'image_url', image_url: { url: imageBase64 } });
+        } else {
+          console.warn("Groq model selected does not support vision, image ignored.");
+        }
+      }
+      
+      const res = await fetch(`https://api.groq.com/openai/v1/chat/completions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentKeys.groq}` },
+        body: JSON.stringify({
+          model: modelId,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: content }
+          ]
+        })
+      });
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(`Groq API Error: ${errorData.error?.message || res.statusText}`);
+      }
+      const data = await res.json();
+      return data.choices[0].message.content;
+    };
+
     let resultText = null;
     
     // Order of execution based on selection and fallback
     const executionPlan = [];
-    if (selectedModel.includes('gemini')) executionPlan.push(() => tryGemini(selectedModel), () => tryOpenAI('gpt-4o-mini'), () => tryAnthropic('claude-3-5-sonnet'));
-    else if (selectedModel.includes('gpt')) executionPlan.push(() => tryOpenAI(selectedModel), () => tryGemini('gemini-1.5-flash'), () => tryAnthropic('claude-3-5-sonnet'));
-    else if (selectedModel.includes('claude')) executionPlan.push(() => tryAnthropic(selectedModel), () => tryOpenAI('gpt-4o-mini'), () => tryGemini('gemini-1.5-flash'));
+    if (selectedModel.includes('gemini')) executionPlan.push(() => tryGemini(selectedModel), () => tryGroq('llama-3.1-70b-versatile'), () => tryOpenAI('gpt-4o-mini'), () => tryAnthropic('claude-3-5-sonnet'));
+    else if (selectedModel.includes('gpt')) executionPlan.push(() => tryOpenAI(selectedModel), () => tryGemini('gemini-1.5-flash'), () => tryGroq('llama-3.1-70b-versatile'), () => tryAnthropic('claude-3-5-sonnet'));
+    else if (selectedModel.includes('claude')) executionPlan.push(() => tryAnthropic(selectedModel), () => tryOpenAI('gpt-4o-mini'), () => tryGemini('gemini-1.5-flash'), () => tryGroq('llama-3.1-70b-versatile'));
+    else executionPlan.push(() => tryGroq(selectedModel), () => tryGemini('gemini-1.5-flash'), () => tryOpenAI('gpt-4o-mini'), () => tryAnthropic('claude-3-5-sonnet'));
 
     const errors = [];
     for (const fn of executionPlan) {
@@ -347,12 +408,21 @@ Edges: ${JSON.stringify(getEdges())}
             onChange={(e) => setSelectedModel(e.target.value)}
             style={{ width: '100%', padding: '6px', borderRadius: '4px', background: 'var(--bg-canvas)', border: '1px solid var(--border)', color: 'white', fontSize: '12px' }}
           >
-            {(!keys.gemini && !keys.openai && !keys.anthropic) && (
+            {(!keys.gemini && !keys.openai && !keys.anthropic && !keys.groq) && (
               <option value="" disabled style={{ backgroundColor: '#1c1e26', color: 'white' }}>No API Keys Configured (Go to Settings)</option>
             )}
             {keys.gemini && (
               <optgroup label="Google Gemini" style={{ backgroundColor: '#111' }}>
                 {geminiModels.map(model => (
+                  <option key={model.id} value={model.id} style={{ backgroundColor: '#1c1e26', color: 'white' }}>
+                    {model.name}
+                  </option>
+                ))}
+              </optgroup>
+            )}
+            {keys.groq && (
+              <optgroup label="Groq (Llama, Mixtral)" style={{ backgroundColor: '#111' }}>
+                {groqModels.map(model => (
                   <option key={model.id} value={model.id} style={{ backgroundColor: '#1c1e26', color: 'white' }}>
                     {model.name}
                   </option>
